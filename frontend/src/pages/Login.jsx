@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { serverUrl } from '../config.js'
 import axios from 'axios'
 import { useDispatch  } from 'react-redux'
-import { setUserData } from '../redux/userSlice'
+import { setSelectedUser, setUserData } from '../redux/userSlice'
 function Login() {
     let navigate = useNavigate()
     let [email, setEmail] = React.useState('')
@@ -24,16 +24,11 @@ const handleLogin = async (e) => {
             { withCredentials: true }
         );
 
-        dispatch(setUserData(data));
+dispatch(setUserData(data.user));
+dispatch(setSelectedUser(null)); // Clear selected user after login
 
         setEmail("");
         setPassword("");
-
-        if (data.user.image) {
-            navigate("/");
-        } else {
-            navigate("/profile");
-        }
 
     } catch (error) {
         console.error(error);

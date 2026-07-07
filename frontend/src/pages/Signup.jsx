@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { serverUrl } from '../config.js'
-import { setUserData } from '../redux/userSlice'
+import { setSelectedUser, setUserData } from '../redux/userSlice'
 import { useDispatch, useSelector} from 'react-redux'
 function Signup() {
     let navigate = useNavigate()
@@ -10,14 +10,11 @@ function Signup() {
     let [email, setEmail] = React.useState('')
     let [password, setPassword] = React.useState('')
     let [error, setError] = React.useState(null)
-    let [loading, setLoading] = React.useState(false)
     let {userData} = useSelector((state) => state.user)
     let dispatch = useDispatch()
 
 const handleSignup = async (e) => {
     e.preventDefault();
-
-    setLoading(true);
     setError(null);
 
     try {
@@ -27,13 +24,12 @@ const handleSignup = async (e) => {
             { withCredentials: true }
         );
 
-        dispatch(setUserData(data));
+        dispatch(setUserData(data.user));
+        dispatch(setSelectedUser(null)); // Clear selected user after signup
 
         setUsername("");
         setEmail("");
         setPassword("");
-
-        navigate("/profile");
 
     } catch (error) {
         console.error("Signup error:", error);
@@ -41,8 +37,6 @@ const handleSignup = async (e) => {
         setError(
             error.response?.data?.message || "Signup failed"
         );
-    } finally {
-        setLoading(false);
     }
 };
  
@@ -58,9 +52,8 @@ const handleSignup = async (e) => {
             <input type="email" placeholder="Email" className="w-full p-2 border border-gray-300 rounded" value={email} onChange={(e) => setEmail(e.target.value)} />
             <input type="password" placeholder="Password" className="w-full p-2 border border-gray-300 rounded" value={password} onChange={(e) => setPassword(e.target.value)} />
                 {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600" disabled={loading}>
-            
-                {loading ? "Signing Up..." : "Sign Up"}
+            <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                Sign Up
             </button>
             <p className="text-sm text-gray-500 mt-4">Already have an account? <a href="/login" className="text-blue-500 hover:underline">Login</a></p>
         </form>

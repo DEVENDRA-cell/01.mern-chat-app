@@ -8,14 +8,14 @@ import  { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 function Profile() {
-
+const {userData} = useSelector(state => state.user);
+console.log("Profile.jsx userData:", userData); // <-- add this
     const profileImg =
         "https://ui-avatars.com/api/?name=User&background=e5e7eb&color=6b7280&size=128";
 
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
-    const { userData } = useSelector((state) => state.user);
     const dispatch = useDispatch();
 
     // Redirect if not logged in
@@ -29,7 +29,6 @@ function Profile() {
     );
     const [backendImage, setBackendImage] = useState(null);
 
-    console.log("Profile userData:", userData);
 
     // Update local state whenever Redux userData changes
     useEffect(() => {
@@ -58,12 +57,12 @@ function Profile() {
                     withCredentials: true,
                 }
             );
-
+console.log("Profile update response:", data); // <-- add this
             dispatch(setUserData(data));
-
-            if (data.user.image) {
-                setFrontendImage(data.user.image);
-            }
+            console.log(data.image)
+          if (data.image) {
+    setFrontendImage(`${data.image}?t=${Date.now()}`);
+}
 
             navigate("/");
         } catch (error) {
@@ -89,7 +88,7 @@ function Profile() {
                 <form className="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow" onSubmit={handleSubmit}>
                     <input type='file'  hidden ref={fileInputRef} onChange={handleFileClick} />
                 <div className='w-32 h-32 mx-auto relative cursor-pointer' onClick={() => {fileInputRef.current.click()}}>
-                    <img    src={frontendImage} alt='Profile Picture' className='w-full h-full    object-cover rounded' />
+                    <img    src={userData?.image || frontendImage} alt='Profile Picture' className='w-full h-full    object-cover rounded' />
                     <div className='absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-50 transition-opacity ' >
                         <span className='text-white text-sm'>Change</span>
                     </div>

@@ -1,12 +1,50 @@
-import React from 'react'
-import dp from '../assets/dp.png'
-function SenderMessage() {
+import React from "react";
+
+function SenderMessage({ image, message }) {
+  let scroll = React.useRef(null);
+  React.useEffect(() => {
+    scroll.current?.scrollIntoView({ behavior: "smooth" });
+  }, [message, image]);
+  const handleImageScroll = () => {
+    scroll.current?.scrollIntoView({ behavior: "smooth" });
+  }
   return (
-    <div className='flex items-end justify-end mb-2 rounded-lg bg-blue-500 text-white p-2 w-fit max-w-[70%] ml-auto'>
-        <img src={dp} alt="profile" className='w-8 h-8 rounded-full object-cover' />
-        Hiii
+    <div className="flex justify-end mb-3 px-3">
+      <div
+        ref={scroll}
+        className="
+          flex flex-col
+          max-w-[70%]
+          bg-gray-700
+          text-white
+          rounded-2xl
+          rounded-br-sm
+          overflow-hidden
+          shadow-sm
+        "
+      >
+        {image && (
+          <img
+            src={image}
+            alt="sent attachment"
+            className="
+              w-full
+              max-w-[280px]
+              max-h-[320px]
+              object-cover
+            "
+            onLoad={handleImageScroll}
+          />
+        )}
+
+        {message?.message && (
+          <p className="px-3 py-2 text-[15px] leading-5 break-words">
+            {message.message}
+          </p>
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
-export default SenderMessage
+export default SenderMessage;

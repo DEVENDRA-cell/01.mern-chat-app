@@ -1,12 +1,10 @@
 import uploadOnCloudinary from "../config/cloudinary.js";
 import User from "../models/userModel.js";
 export const getCurrentUser = async (req, res) => {
-    console.log("Cookies:", req.cookies);
-    console.log("Token:", req.cookies.token);
 
     try{
 
-    let userid = req.userId;
+    let userid = req.userId; // we got userid from the auth middleware, which decoded the JWT and attached the userId to the request object.
     // Fetch user details from the database using the userid
     let user = await User.findById(userid).select("-password"); // Exclude password from the response
     if(!user){
@@ -47,4 +45,24 @@ export const getOtherUsers = async (req, res) => {
         console.error("Error fetching other users:", error);
         res.status(500).json({ message: "Server error" });
     }   
+}
+export const searchUsers = async (req, res) => {
+    try{
+    let {query } = req.query;
+    if(!query) {    
+        return res.status(400).json({ message: "Query parameter is required" });
+    }
+    let users = await User.find({
+        _id: { $ne: req.userId }, // Exclude the current user from the search results
+        $or: [
+            { name: { $regex: query, $options: "i" } },
+            { username: { $regex: query, $options: "i" } }  
+        ]
+        }
+    ).select("-password");
+    res.status(200).json(users);
+}    catch (error) {
+        console.error("Error searching users:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 }

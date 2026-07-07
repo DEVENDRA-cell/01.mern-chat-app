@@ -24,7 +24,8 @@ export const signUp = async (req, res) => {
             sameSite: "strict",
             maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
-        res.status(201).json({ message: "User registered successfully", user: { id: user._id, username: user.username, email: user.email } });
+        const userToSend = await User.findById(user._id).select("-password");
+        res.status(201).json({ message: "User registered successfully", user: userToSend });
     } catch (error) {
         console.error("Error during signup:", error);
         res.status(500).json({ message: "Server error" });
@@ -49,7 +50,8 @@ export const signIn = async (req, res) => {
             sameSite: "strict",
             maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
-        res.status(200).json({ message: "User signed in successfully", user: { id: user._id, username: user.username, email: user.email } });
+       const userToSend = await User.findById(user._id).select("-password");
+        res.status(200).json({ message: "User signed in successfully", user: userToSend });
     } catch (error) {
         console.error("Error during signin:", error);
         res.status(500).json({ message: "Server error" });
@@ -57,7 +59,6 @@ export const signIn = async (req, res) => {
 }
 
 export const signOut = (req, res) => {
-    console.log("Logout request cookies:", req.cookies);
 
     res.clearCookie("token", {
         path: "/",

@@ -5,29 +5,29 @@ import axios from "axios";
 import {serverUrl}  from "../config.js";
 
 const getOtherUsers = () => {
-    let dispatch = useDispatch();
-    let { userData } = useSelector((state) => state.user);
+    const dispatch = useDispatch();
+    const { userData } = useSelector((state) => state.user);
 
     useEffect(() => {
-        console.log("getOtherUsers called");
-        console.log("userData in getOtherUsers:", userData);
+        if (!userData) return;
+
         const fetchOtherUsers = async () => {
-            console.log("Calling API...");
             try {
-                const { data } = await axios.get(serverUrl + '/api/user/others', { withCredentials: true });   
-                
-console.log(data);   
-                if (data) {
+                const { data } = await axios.get(
+                    serverUrl + "/api/user/others",
+                    { withCredentials: true }
+                );
+
+                if (data.users) {
                     dispatch(setOtherUsers(data.users));
                 }
-
             } catch (error) {
-                console.error('Error fetching other users:', error);
+                console.error(error);
             }
-        }; 
-        if(userData) { // Only fetch if userData is already set
-            fetchOtherUsers();}
-    }, [userData]); // Added userData and dispatch to the dependency array to avoid warnings    
-}
+        };
+
+        fetchOtherUsers();
+    }, [dispatch, userData]);
+};
 
 export default getOtherUsers;
