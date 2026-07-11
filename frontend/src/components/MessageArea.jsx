@@ -14,7 +14,7 @@ import axios from 'axios';
 import { serverUrl } from '../config.js';
 import { setMessages } from '../redux/messageSlice.js';
 import { useEffect, useRef } from 'react';
-import { getMyPrivateKey, getSessionKey } from '../utils/cryptoutils.js';
+import { getMyPrivateKey, getSessionKey } from '../utils/cryptoUtils.js';
 function MessageArea() {
     let userData = useSelector((state) => state.user.userData);
     let selectedUser = useSelector((state) => state.user.selectedUser);
