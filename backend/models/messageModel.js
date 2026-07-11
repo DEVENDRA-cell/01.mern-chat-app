@@ -12,7 +12,11 @@ const messageSchema = new mongoose.Schema(
                 ref: "User",
         required: true,
         },   
-        message: {
+        ciphertext: {
+            type: String,
+            default: "",
+        },
+        iv: {
             type: String,
             default: "",
         },

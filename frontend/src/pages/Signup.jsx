@@ -4,6 +4,7 @@ import axios from 'axios'
 import { serverUrl } from '../config.js'
 import { setSelectedUser, setUserData } from '../redux/userSlice'
 import { useDispatch, useSelector} from 'react-redux'
+import { getOrCreateDeviceId, setupKeysForUser, uploadPublicKey } from "../utils/cryptoUtils";
 function Signup() {
     let navigate = useNavigate()
     let [username, setUsername] = React.useState('')
@@ -30,7 +31,14 @@ const handleSignup = async (e) => {
         setUsername("");
         setEmail("");
         setPassword("");
-
+// ...inside your existing async submit handler, right after login succeeds:
+const publicKey = await setupKeysForUser(data.user._id); // got public key and stored private key in localStorage
+const deviceId = getOrCreateDeviceId();  // it store and return the deviceId from localStorage.
+console.log("My public key (Day 2 sends this to the backend):", publicKey);
+console.log("My device ID:", deviceId); 
+if(publicKey) {
+    await uploadPublicKey({ deviceId, publicKey });
+}
     } catch (error) {
         console.error("Signup error:", error);
 

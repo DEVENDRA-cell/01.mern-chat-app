@@ -14,9 +14,11 @@ import axios from 'axios';
 import { serverUrl } from '../config.js';
 import { setMessages } from '../redux/messageSlice.js';
 import { useEffect, useRef } from 'react';
+import { getMyPrivateKey, getSessionKey } from '../utils/cryptoutils.js';
 function MessageArea() {
     let userData = useSelector((state) => state.user.userData);
     let selectedUser = useSelector((state) => state.user.selectedUser);
+    console.log('selectedUser', selectedUser);
     let onlineUsers = useSelector((state) => state.user.onlineUsers);
     let {socket} = useSelector((state) => state.user);
     let [showpicker, setShowpicker] = React.useState(false);
@@ -40,14 +42,22 @@ useEffect(() => {
         return null; // Don't send empty messages
       }
         try { 
+    const myPrivateKey = await getMyPrivateKey(userData._id);
+    const sessionKey = await getSessionKey(userData._id, myPrivateKey, selectedUser);
+
             let formData = new FormData();
-            formData.append('message', inputMessage);
+            if (inputMessage.length > 0) {
+              const { ciphertext, iv } = await encryptMessage(sessionKey, inputMessage);
+              formData.append('ciphertext', ciphertext);
+              formData.append('iv', iv);
+            }
             if(backendImage) {
                 formData.append('profileimg', backendImage);
             }
-            let result  = await axios.post(`${serverUrl}/api/message/send/${selectedUser._id}`, formData,{withCredentials: true});
-            console.log('Message sent:', result.data);
-            dispatch(setMessages([...messages,result.data]))
+            let result = await axios.post(`${serverUrl}/api/message/send/${selectedUser._id}`, formData, { withCredentials: true });
+
+            const decrypted = await decryptStoredMessage(sessionKey, result.data);
+            dispatch(setMessages([...messages, decrypted]));
             setInputMessage(''); // Clear the input field after sending
             setFrontendImage(null); // Clear the frontend image preview
             setBackendImage(null); // Clear the backend image reference
@@ -58,13 +68,17 @@ useEffect(() => {
 
     useEffect(() => {
       if (!socket) return;
-      socket.on("newMessage", (newMessage) => {
-          dispatch(setMessages([...messages, newMessage]));
+      socket.on("newMessage", async (newMessage) => {
+      if (!selectedUser || newMessage.sender !== selectedUser._id) return;
+      const myPrivateKey = await getMyPrivateKey(userData._id);
+      const sessionKey = await getSessionKey(userData._id, myPrivateKey, selectedUser);
+      const decrypted = await decryptStoredMessage(sessionKey, newMessage);
+      dispatch(setMessages([...messages, decrypted]));
       });
       return () => {
-          socket.off("newMessage");
-      }
-    }, [messages, setMessages]);
+        socket.off("newMessage");
+    };
+}, [messages, socket, userData, selectedUser]);
   return (
     <div
       className={`

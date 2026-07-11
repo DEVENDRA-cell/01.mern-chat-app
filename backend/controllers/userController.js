@@ -6,7 +6,7 @@ export const getCurrentUser = async (req, res) => {
 
     let userid = req.userId; // we got userid from the auth middleware, which decoded the JWT and attached the userId to the request object.
     // Fetch user details from the database using the userid
-    let user = await User.findById(userid).select("-password"); // Exclude password from the response
+    let user = await User.findById(userid).select("-password"); 
     if(!user){
         return res.status(404).json({ message: "User not found" });
     }
@@ -25,7 +25,7 @@ export const updateProfilePicture = async (req, res) => {
         }
         let user = await User.findByIdAndUpdate(req.userId,{
             name, image 
-        },{ new: true }).select("-password"); // Exclude password from the response
+        },{ new: true }).select("-password");
         if(!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -63,6 +63,30 @@ export const searchUsers = async (req, res) => {
     res.status(200).json(users);
 }    catch (error) {
         console.error("Error searching users:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+export const updatePublicKey = async (req, res) => {
+    try {
+        const { deviceId, publicKey } = req.body;
+        if (!deviceId || !publicKey) {
+            return res.status(400).json({ message: "deviceId and publicKey are required" });
+        }
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const existing = user.publicKeys.find((pk) => pk.deviceId === deviceId);
+        if (existing) {
+            existing.key = JSON.stringify(publicKey);
+        } else {
+            user.publicKeys.push({ deviceId, key: JSON.stringify(publicKey) });
+        }
+        await user.save();
+        const userToSend = await User.findById(req.userId).select("-password -email");
+        res.json(userToSend);
+    } catch (error) {
+        console.error("Error updating public key:", error);
         res.status(500).json({ message: "Server error" });
     }
 }

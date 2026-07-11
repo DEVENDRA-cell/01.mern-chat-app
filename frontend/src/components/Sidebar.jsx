@@ -105,7 +105,7 @@ useEffect(() => {
       >
         <IoSearch className="text-xl"  />
       </div>
-
+      
       {/* Online Users */}
       <div className="flex items-center gap-2 overflow-x-auto">
         {otherUsers?.map(

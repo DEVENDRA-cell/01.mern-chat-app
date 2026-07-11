@@ -9,7 +9,6 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 function Profile() {
 const {userData} = useSelector(state => state.user);
-console.log("Profile.jsx userData:", userData); // <-- add this
     const profileImg =
         "https://ui-avatars.com/api/?name=User&background=e5e7eb&color=6b7280&size=128";
 

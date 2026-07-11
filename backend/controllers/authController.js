@@ -4,6 +4,7 @@ import genToken  from "../config/token.js";
 
 export const signUp = async (req, res) => {
     let { username, email, password } = req.body;
+    const isProduction = process.env.NODE_ENV === "production";
     try {
         // Check if the user already exists
         if(!username || !email || !password){
@@ -20,11 +21,12 @@ export const signUp = async (req, res) => {
         const token = genToken(user._id);
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 24 * 60 * 60 * 1000,
         });
         const userToSend = await User.findById(user._id).select("-password");
+        
         res.status(201).json({ message: "User registered successfully", user: userToSend });
     } catch (error) {
         console.error("Error during signup:", error);
@@ -46,10 +48,10 @@ export const signIn = async (req, res) => {
         const token = genToken(user._id);
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-        });
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 24 * 60 * 60 * 1000,
+        }); 
        const userToSend = await User.findById(user._id).select("-password");
         res.status(200).json({ message: "User signed in successfully", user: userToSend });
     } catch (error) {
@@ -62,8 +64,8 @@ export const signOut = (req, res) => {
 
     res.clearCookie("token", {
         path: "/",
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
     });
 
     console.log("After clearCookie");

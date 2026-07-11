@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { serverUrl } from "../config.js";
 import { setMessages } from "../redux/messageSlice.js";
+import { getMyPrivateKey, getSessionKey, decryptStoredMessage } from "../utils/cryptoUtils.js";
 
 const getMessages = () => {
     const dispatch = useDispatch();
@@ -12,8 +13,6 @@ const getMessages = () => {
     );
 
     useEffect(() => {
-
-        // selectedUser is initially null
         if (!userData || !selectedUser) return;
 
         const fetchMessages = async () => {
@@ -25,7 +24,14 @@ const getMessages = () => {
                     }
                 );
 
-                dispatch(setMessages(data.data));
+                const myPrivateKey = await getMyPrivateKey(userData._id);
+                const sessionKey = await getSessionKey(userData._id, myPrivateKey, selectedUser);
+
+                const decryptedMessages = await Promise.all(
+                    data.data.map((msg) => decryptStoredMessage(sessionKey, msg))
+                );
+
+                dispatch(setMessages(decryptedMessages));
 
             } catch (error) {
                 console.error(error);

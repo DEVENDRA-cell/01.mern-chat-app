@@ -7,18 +7,19 @@ export const sendMessage = async (req, res) => {
     try {
         let sender = req.userId;
         let { receiver } = req.params;
-        let { message } = req.body;  
+        let { ciphertext, iv } = req.body;  
         let image;
         if (req.file) {
             image = await uploadOnCloudinary(req.file.path);
-        }
+        }    
         let conversation = await Conversation.findOne({
             participants: { $all: [sender, receiver] },
         });
         let  newMessage = await Message.create({
             sender,
             receiver,
-            message,
+            ciphertext,
+            iv,
             image
         });
         if (!conversation) {

@@ -4,6 +4,8 @@ import { serverUrl } from '../config.js'
 import axios from 'axios'
 import { useDispatch  } from 'react-redux'
 import { setSelectedUser, setUserData } from '../redux/userSlice'
+import { setupKeysForUser, uploadPublicKey } from "../utils/cryptoUtils";
+
 function Login() {
     let navigate = useNavigate()
     let [email, setEmail] = React.useState('')
@@ -30,6 +32,15 @@ dispatch(setSelectedUser(null)); // Clear selected user after login
         setEmail("");
         setPassword("");
 
+
+ 
+const publicKey = await setupKeysForUser(data.user._id);
+console.log("My public key (Day 2 sends this to the backend):", publicKey );
+const deviceId = getOrCreateDeviceId(); 
+console.log("My device ID:", deviceId);
+if(publicKey) {
+    await uploadPublicKey({ deviceId, publicKey });
+}
     } catch (error) {
         console.error(error);
 
