@@ -2,9 +2,9 @@ import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import genToken  from "../config/token.js";
 
+const isProduction = process.env.NODE_ENV === "production";
 export const signUp = async (req, res) => {
     let { username, email, password } = req.body;
-    const isProduction = process.env.NODE_ENV === "production";
     try {
         // Check if the user already exists
         if(!username || !email || !password){

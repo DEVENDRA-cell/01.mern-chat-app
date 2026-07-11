@@ -25,6 +25,8 @@ const getMessages = () => {
                 );
 
                 const myPrivateKey = await getMyPrivateKey(userData._id);
+                console.log("selectedUser:", selectedUser);
+console.log("selectedUser publicKeys:", selectedUser.publicKeys);
                 const sessionKey = await getSessionKey(userData._id, myPrivateKey, selectedUser);
 
                 const decryptedMessages = await Promise.all(

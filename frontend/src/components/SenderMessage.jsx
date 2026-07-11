@@ -7,7 +7,7 @@ function SenderMessage({ image, message }) {
   }, [message, image]);
   const handleImageScroll = () => {
     scroll.current?.scrollIntoView({ behavior: "smooth" });
-  }
+  } 
   return (
     <div className="flex justify-end mb-3 px-3">
       <div
