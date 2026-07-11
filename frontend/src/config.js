@@ -1,1 +1,1 @@
-export const serverUrl = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+export const serverUrl = "https://chat-app-backend-v5pq.onrender.com" || "http://localhost:3000";
