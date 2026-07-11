@@ -14,7 +14,7 @@ import messageRouter from './routes/messageRoutes.js';
 import { app, server } from './socket/socket.js';
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: "01-mern-chat-app-8lm6.vercel.app" || "http://localhost:5173",
     credentials: true,
 }));
 
