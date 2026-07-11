@@ -1,1 +1,1 @@
-export const serverUrl = "https://zero1-mern-chat-app.onrender.com" || "http://localhost:3000";
+export const serverUrl = "https://zero1-mern-chat-app-1.onrender.com" || "http://localhost:3000";
